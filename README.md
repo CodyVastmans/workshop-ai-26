@@ -1,13 +1,12 @@
 # Workshop AI – Symfony + Claude
 
 Seminarie-project: een chatapp die laag per laag slimmer en daarna veiliger wordt.
-Elke laag is een git tag; `git checkout laag-1-chat` brengt je naar het einde van die laag.
+`main` is het startpunt dat je cloont. Elke laag heeft een eigen branch met de oplossing.
 
-| Laag | Tag | Onderwerp |
-|------|-----|-----------|
-| 0 | `laag-0-setup` | Project, API key, model als parameter |
-| 1 | `laag-1-chat` | Chat: system prompt, geschiedenis in de sessie |
-| 2 | `laag-2-memory` | Geheugen: gesprekken in de database, memory tool |
+| Laag | Branch | Onderwerp |
+|------|--------|-----------|
+| 1 | `laag-1-chat` | Chat: één vraag, één antwoord, geen geheugen |
+| 2 | `laag-2-memory` | Geheugen: geschiedenis meesturen, gesprekken in de database, memory tool |
 | 3 | `laag-3-tools` | Tools: het model mag code van ons oproepen |
 | 4 | `laag-4-compression` | Tokens, caching, compaction |
 | 5 | `laag-5-data-safety` | Prompt injection, logging, wat verlaat je server |
@@ -19,7 +18,7 @@ Vereist: PHP 8.4+, Composer, en een Anthropic API key (krijg je tijdens het semi
 
 ```bash
 composer install
-cp .env .env.local          # en vul ANTHROPIC_API_KEY in
+cp .env.dist .env           # en vul ANTHROPIC_API_KEY in
 symfony serve -d            # of: php -S 127.0.0.1:8000 -t public
 ```
 
@@ -27,13 +26,26 @@ Open daarna http://127.0.0.1:8000. De database is SQLite en wordt automatisch aa
 
 ### Model wisselen
 
-Het model is een env-variabele. Zet in `.env.local` bijvoorbeeld:
+Het model is een env-variabele. Zet in `.env` bijvoorbeeld:
 
 ```
 CLAUDE_MODEL=claude-sonnet-5-5
 ```
 
 Beschikbare modellen en prijzen: https://docs.anthropic.com/en/docs/about-claude/models
+
+## Opdracht laag 1: laat de app praten
+
+Op `main` werkt alles behalve de call naar Claude. Stuur een vraag en je krijgt een
+`LogicException` die zegt wat er ontbreekt. Je doel: de app antwoordt.
+
+Open `src/Ai/ClaudeChatModel.php` en implementeer `reply()`. De stappen staan als
+commentaar in de methode. Testen doe je met een echte key: `ANTHROPIC_API_KEY` in `.env` invullen,
+de app starten en een vraag stellen. De tokens onder het antwoord zijn je eerste
+kennismaking met wat een call kost.
+
+Klaar? Verwijder dan ook het `ignoreErrors`-blok onderaan `phpstan.dist.neon`, dat
+bestond alleen voor de lege stub.
 
 ## Kwaliteitschecks
 
@@ -46,7 +58,15 @@ composer test      # phpunit
 ## Waar zit wat
 
 - `src/Ai/` – het gesprek met het model: `ChatModel` (interface), `ClaudeChatModel` (de SDK-call)
-- `src/Chat/` – de gesprekslogica en waar de geschiedenis leeft (`ConversationStore`)
-- `src/Controller/ChatController.php` – dunne controller: formulier in, redirect uit
+- `src/Chat/ChatService.php` – de system prompt en de gesprekslogica (in laag 1 nog zonder geheugen)
+- `src/Controller/Chat/` – één controller per route (`Index`, `Send`)
 - `templates/chat/` – de UI, met per antwoord het tokenverbruik
 - `tests/` – `FakeChatModel` vervangt Claude, zodat tests geen key of netwerk nodig hebben
+
+## Voor de docent: branches en stacked PR's
+
+- `main` = startpunt voor studenten, met de TODO-stubs.
+- `laag-1-chat` vertrekt van `main` en bevat de oplossing van de opdracht.
+- Elke volgende laag vertrekt van de vorige: `laag-2-memory` van `laag-1-chat`, enzovoort.
+- Open per laag een PR naar de vorige branch (stacked). De PR-diff toont dan precies
+  wat die laag toevoegt, handig om tijdens het seminarie door te lopen.

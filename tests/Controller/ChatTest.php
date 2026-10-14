@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Controller;
 
 use App\Ai\ChatModel;
-use App\Ai\Role;
 use App\Tests\Fake\FakeChatModel;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class ChatControllerTest extends WebTestCase
+final class ChatTest extends WebTestCase
 {
     private KernelBrowser $client;
     private FakeChatModel $model;
@@ -28,59 +27,29 @@ final class ChatControllerTest extends WebTestCase
         $this->client->request('GET', '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('.chat__empty', 'Nog geen berichten');
+        self::assertSelectorExists('.chat__empty');
+        self::assertSelectorNotExists('.message');
     }
 
-    public function testSendingAMessageShowsQuestionAndAnswer(): void
+    public function testAskingAQuestionShowsQuestionAndAnswer(): void
     {
         $this->client->request('GET', '/');
         $this->client->submitForm('Verstuur', ['chat_input[message]' => 'Wat is Symfony?']);
 
-        self::assertResponseRedirects('/', 303);
-        $this->client->followRedirect();
-
+        self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.message--user', 'Wat is Symfony?');
         self::assertSelectorTextContains('.message--assistant', 'Hallo, ik ben de fake.');
         self::assertSelectorTextContains('.message__meta', 'in: 12 tokens');
+        self::assertSame(['Wat is Symfony?'], $this->model->receivedQuestions);
     }
 
-    public function testFullHistoryIsSentOnEveryCall(): void
-    {
-        $this->client->request('GET', '/');
-        $this->client->submitForm('Verstuur', ['chat_input[message]' => 'Eerste vraag']);
-        $this->client->followRedirect();
-        $this->client->submitForm('Verstuur', ['chat_input[message]' => 'Tweede vraag']);
-
-        self::assertCount(2, $this->model->receivedHistories);
-
-        $secondCall = $this->model->receivedHistories[1];
-        self::assertCount(3, $secondCall, 'vraag 1, antwoord 1 en vraag 2 gaan allemaal mee');
-        self::assertSame(Role::User, $secondCall[0]->role);
-        self::assertSame('Eerste vraag', $secondCall[0]->content);
-        self::assertSame(Role::Assistant, $secondCall[1]->role);
-        self::assertSame('Tweede vraag', $secondCall[2]->content);
-    }
-
-    public function testBlankMessageIsRejected(): void
+    public function testBlankQuestionIsRejected(): void
     {
         $this->client->request('GET', '/');
         $this->client->submitForm('Verstuur', ['chat_input[message]' => '   ']);
 
         self::assertResponseStatusCodeSame(422);
         self::assertSelectorTextContains('.chat__form', 'Typ eerst een vraag.');
-        self::assertCount(0, $this->model->receivedHistories);
-    }
-
-    public function testResetClearsTheConversation(): void
-    {
-        $this->client->request('GET', '/');
-        $this->client->submitForm('Verstuur', ['chat_input[message]' => 'Vraag']);
-        $this->client->followRedirect();
-        $this->client->submitForm('Nieuw gesprek');
-
-        self::assertResponseRedirects('/', 303);
-        $this->client->followRedirect();
-
-        self::assertSelectorExists('.chat__empty');
+        self::assertSame([], $this->model->receivedQuestions);
     }
 }
