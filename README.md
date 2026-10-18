@@ -19,10 +19,11 @@ Vereist: PHP 8.4+, Composer, en een Anthropic API key (krijg je tijdens het semi
 ```bash
 composer install
 cp .env.dist .env           # en vul ANTHROPIC_API_KEY in
+bin/console doctrine:migrations:migrate -n   # SQLite in var/, met de tabellen en 16 games voor alle lagen
 symfony serve -d            # of: php -S 127.0.0.1:8000 -t public
 ```
 
-Open daarna http://127.0.0.1:8000. De database is SQLite en wordt automatisch aangemaakt in `var/`.
+Open daarna http://127.0.0.1:8000.
 
 ### Model wisselen
 
@@ -59,6 +60,8 @@ composer test      # phpunit
 
 - `src/Ai/` – het gesprek met het model: `ChatModel` (interface), `ClaudeChatModel` (de SDK-call)
 - `src/Chat/ChatService.php` – de system prompt en de gesprekslogica (in laag 1 nog zonder geheugen)
+- `src/Entity/` + `migrations/` – `Conversation`, `Message` en `Game`: de database voor álle lagen staat al klaar,
+  ORM-mapping typen is niet de les. Vanaf laag 2 gebruiken we ze; `src/Ai/ChatMessage.php` en `ToolCall.php` ook
 - `src/Controller/Chat/` – één controller per route (`Index`, `Send`)
 - `templates/chat/` – de UI, met per antwoord het tokenverbruik
 - `tests/` – `FakeChatModel` vervangt Claude, zodat tests geen key of netwerk nodig hebben
