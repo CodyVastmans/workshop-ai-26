@@ -1,16 +1,17 @@
 # Workshop AI – Symfony + Claude
 
 Seminarie-project: een chatapp die laag per laag slimmer en daarna veiliger wordt.
-`main` is het startpunt dat je cloont. Elke laag heeft een eigen branch met de oplossing.
+`main` is het startpunt dat je cloont. Elke laag heeft een eigen branch met de oplossing,
+en een tag `layer-N-start` met het vertrekpunt van de opdracht (`git checkout layer-2-start`).
 
 | Laag | Branch | Onderwerp |
 |------|--------|-----------|
-| 1 | `laag-1-chat` | Chat: één vraag, één antwoord, geen geheugen |
-| 2 | `laag-2-memory` | Geheugen: geschiedenis meesturen, gesprekken in de database, memory tool |
-| 3 | `laag-3-tools` | Tools: het model mag code van ons oproepen |
-| 4 | `laag-4-compression` | Tokens, caching, compaction |
-| 5 | `laag-5-data-safety` | Prompt injection, logging, wat verlaat je server |
-| 6 | `laag-6-gdpr` | Wissen, bewaartermijn, transparantie |
+| 1 | `layer-1-chat` | Chat: één vraag, één antwoord, geen geheugen |
+| 2 | `layer-2-memory` | Geheugen: geschiedenis meesturen, gesprekken in de database, memory tool |
+| 3 | `layer-3-tools` | Tools: het model mag code van ons oproepen |
+| 4 | `layer-4-compression` | Tokens, caching, compaction |
+| 5 | `layer-5-data-safety` | Prompt injection, logging, wat verlaat je server |
+| 6 | `layer-6-gdpr` | Wissen, bewaartermijn, transparantie |
 
 ## Zelf draaien
 

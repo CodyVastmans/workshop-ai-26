@@ -115,3 +115,49 @@ body {
     background: #fde8e6;
     color: var(--error);
 }
+
+/* Laag 3: tool-calls onder een antwoord (<details class="toolcall">). */
+.toolcall {
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.toolcall summary {
+    cursor: pointer;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.toolcall pre {
+    max-height: 12rem;
+    overflow: auto;
+    padding: 0.5rem;
+    background: #f1f1ef;
+    border-radius: 0.4rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Laag 4: contextgrootte boven het gesprek en de samenvatting na compaction. */
+.chat__context {
+    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.summary {
+    margin-bottom: 1rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    background: #fff8e1;
+    border-radius: 0.5rem;
+}
+
+.summary summary {
+    cursor: pointer;
+}
+
+.summary p {
+    margin: 0.5rem 0 0;
+    white-space: pre-wrap;
+}
