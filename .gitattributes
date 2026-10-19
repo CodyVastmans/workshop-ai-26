@@ -1,0 +1,3 @@
+# Altijd LF in de repo én in de checkout, ook op Windows (core.autocrlf=true).
+# Anders zet php-cs-fixer elk bestand terug naar LF en krijg je een diff over het hele project.
+* text=auto eol=lf

@@ -23,3 +23,8 @@
 /.php-cs-fixer.php
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
+
+###> workshop ###
+# .env is jouw lokale kopie van .env.dist (met je API key): nooit committen
+/.env
+###< workshop ###

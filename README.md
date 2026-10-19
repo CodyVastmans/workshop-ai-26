@@ -14,16 +14,32 @@ Seminarie-project: een chatapp die laag per laag slimmer en daarna veiliger word
 
 ## Zelf draaien
 
-Vereist: PHP 8.4+, Composer, en een Anthropic API key (krijg je tijdens het seminarie).
+Vereist: PHP 8.4+ met de extensie `pdo_sqlite`, Composer, en een Anthropic API key
+(krijg je tijdens het seminarie).
 
 ```bash
 composer install
-cp .env.dist .env           # en vul ANTHROPIC_API_KEY in
-bin/console doctrine:migrations:migrate -n   # SQLite in var/, met de tabellen en 16 games voor alle lagen
-symfony serve -d            # of: php -S 127.0.0.1:8000 -t public
+cp .env.dist .env           # Windows: copy .env.dist .env   — en vul ANTHROPIC_API_KEY in
+php bin/console doctrine:migrations:migrate -n   # SQLite in var/, met de tabellen en 16 games voor alle lagen
+php -S 127.0.0.1:8000 -t public                  # of: symfony serve -d
 ```
 
 Open daarna http://127.0.0.1:8000.
+
+### Windows met Laragon
+
+1. **PHP 8.4.** Laragon levert die niet standaard mee: download de "Thread Safe" zip op
+   https://windows.php.net/download/, pak hem uit in `C:\laragon\bin\php\php-8.4.x\` en
+   kies die versie via Menu → PHP → Version.
+2. **Extensies.** Open Menu → PHP → php.ini en zet deze regels aan (de `;` ervoor weg):
+   `extension=pdo_sqlite`, `extension=sqlite3`, `extension=openssl`, `extension=curl`,
+   `extension=mbstring`, `extension=fileinfo`. Daarna Laragon herstarten.
+3. **Project.** Clone in `C:\laragon\www\workshop-ai-26` en doorloop de stappen hierboven in
+   de Laragon-terminal (Cmder). Laragon maakt automatisch de vhost http://workshop-ai-26.test
+   aan die naar `public/` wijst, de `php -S`-stap mag je dan overslaan. Apache gebruikt
+   `public/.htaccess` voor de routing; kies je nginx, dan werkt dat zonder extra config.
+
+Werkt de vhost niet, dan is `php -S 127.0.0.1:8000 -t public` altijd het alternatief.
 
 ### Model wisselen
 
