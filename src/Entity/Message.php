@@ -134,6 +134,37 @@ final class Message
         return $this->content;
     }
 
+    public function getModel(): ?string
+    {
+        return $this->model;
+    }
+
+    public function getInputTokens(): ?int
+    {
+        return $this->inputTokens;
+    }
+
+    public function getOutputTokens(): ?int
+    {
+        return $this->outputTokens;
+    }
+
+    public function getStopReason(): ?string
+    {
+        return $this->stopReason;
+    }
+
+    /**
+     * @return list<ToolCall>
+     */
+    public function getToolCalls(): array
+    {
+        return array_map(
+            static fn (array $call): ToolCall => new ToolCall($call['name'], $call['input'], $call['result']),
+            $this->toolCalls ?? [],
+        );
+    }
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;

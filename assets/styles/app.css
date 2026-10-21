@@ -33,6 +33,44 @@ body {
     margin: 0;
 }
 
+.chat__layout {
+    display: grid;
+    grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+    gap: 1.5rem;
+}
+
+.chat__sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+}
+
+.chat__conversation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.chat__conversation {
+    overflow: hidden;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.5rem;
+    color: var(--text);
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat__conversation:hover,
+.chat__conversation--active {
+    background: var(--user);
+}
+
+.chat__main {
+    min-width: 0;
+}
+
 .chat__messages {
     display: flex;
     flex-direction: column;
@@ -107,6 +145,23 @@ body {
     background: transparent;
     color: var(--accent);
     border: 1px solid var(--accent);
+}
+
+@media (max-width: 40rem) {
+    .chat__layout {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .chat__conversation-list {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .chat__conversation {
+        flex: 0 0 auto;
+        max-width: 12rem;
+    }
 }
 
 .flash--error {

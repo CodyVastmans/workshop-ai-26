@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Repository\ConversationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ConversationRepository::class)]
+#[ORM\Index(name: 'IDX_CONVERSATION_OWNER', fields: ['ownerTokenHash'])]
 final class Conversation
 {
     #[ORM\Id]
@@ -19,6 +21,9 @@ final class Conversation
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(length: 64, options: ['default' => ''])]
+    private string $ownerTokenHash;
 
     /**
      * Samenvatting van de berichten die niet meer naar het model gaan (zie HistoryCompactor).
@@ -36,9 +41,10 @@ final class Conversation
     #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $messages;
 
-    public function __construct()
+    public function __construct(string $ownerTokenHash)
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->ownerTokenHash = $ownerTokenHash;
         $this->messages = new ArrayCollection();
     }
 

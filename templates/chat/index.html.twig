@@ -12,34 +12,68 @@
         <p class="flash flash--error">{{ message }}</p>
     {% endfor %}
 
-    <section class="chat__messages" aria-live="polite">
-        {% if question is defined %}
-            <article class="message message--user">
-                <p class="message__text">{{ question|nl2br }}</p>
-            </article>
-        {% endif %}
-        {% if reply is defined and reply %}
-            <article class="message message--assistant">
-                <p class="message__text">{{ reply.text|nl2br }}</p>
-                <footer class="message__meta">
-                    {{ reply.model }}
-                    · in: {{ reply.inputTokens }} tokens
-                    · uit: {{ reply.outputTokens }} tokens
-                    {% if reply.stopReason != 'end_turn' %}
-                        · stop: {{ reply.stopReason }}
-                    {% endif %}
-                </footer>
-            </article>
-        {% endif %}
-        {% if question is not defined %}
-            <p class="chat__empty">Stel een vraag. Laag 1 heeft geen geheugen: elke vraag staat op zichzelf.</p>
-        {% endif %}
-    </section>
+    <div class="chat__layout">
+        <aside class="chat__sidebar" aria-label="Gesprekken">
+            <form method="post" action="{{ path('chat_new') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('chat_new') }}">
+                <button type="submit" class="button button--ghost">Nieuw gesprek</button>
+            </form>
+            {% if conversations is not empty %}
+                <nav class="chat__conversation-list" aria-label="Eerdere gesprekken">
+                    {% for item in conversations %}
+                        {% set firstMessage = item.messages|first %}
+                        <a class="chat__conversation{% if conversation and conversation.id == item.id %} chat__conversation--active{% endif %}"
+                           href="{{ path('chat', {conversation: item.id}) }}"
+                           {% if conversation and conversation.id == item.id %}aria-current="page"{% endif %}>
+                            {{ firstMessage ? (firstMessage.content|slice(0, 40)) : 'Nieuw gesprek' }}
+                        </a>
+                    {% endfor %}
+                </nav>
+            {% endif %}
+        </aside>
 
-    {# data-turbo=false: de POST rendert gewoon een pagina, Turbo verwacht anders een redirect #}
-    {{ form_start(form, {attr: {class: 'chat__form', 'data-turbo': 'false'}}) }}
-        {{ form_row(form.message) }}
-        <button type="submit" class="button">Verstuur</button>
-    {{ form_end(form) }}
+        <section class="chat__main">
+            <section class="chat__messages" aria-live="polite">
+                {% if conversation %}
+                    {% for message in conversation.messages %}
+                        <article class="message message--{{ message.role.value }}">
+                            <p class="message__text">{{ message.content|nl2br }}</p>
+                            {% if message.role.value == 'assistant' %}
+                                {% for toolCall in message.toolCalls %}
+                                    <details class="toolcall">
+                                        <summary>Gamecatalogus doorzocht</summary>
+                                        <p>Filters: {{ toolCall.input|json_encode }}</p>
+                                        <pre>{{ toolCall.result }}</pre>
+                                    </details>
+                                {% endfor %}
+                                <footer class="message__meta">
+                                    {{ message.model }}
+                                    · in: {{ message.inputTokens }} tokens
+                                    · uit: {{ message.outputTokens }} tokens
+                                    {% if message.stopReason != 'end_turn' %}
+                                        · stop: {{ message.stopReason }}
+                                    {% endif %}
+                                </footer>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                {% endif %}
+                {% if pendingQuestion is defined %}
+                    <article class="message message--user">
+                        <p class="message__text">{{ pendingQuestion|nl2br }}</p>
+                    </article>
+                {% endif %}
+                {% if (not conversation or conversation.messages is empty) and pendingQuestion is not defined %}
+                    <p class="chat__empty">Stel een vraag. Eerdere vragen en antwoorden in dit gesprek worden onthouden.</p>
+                {% endif %}
+            </section>
+
+            {{ form_start(form, {attr: {class: 'chat__form', 'data-turbo': 'false'}}) }}
+                {{ form_widget(form.conversationId) }}
+                {{ form_row(form.message) }}
+                <button type="submit" class="button">Verstuur</button>
+            {{ form_end(form) }}
+        </section>
+    </div>
 </main>
 {% endblock %}

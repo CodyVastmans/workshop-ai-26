@@ -9,5 +9,8 @@ namespace App\Ai;
  */
 interface ChatModel
 {
-    public function reply(string $systemPrompt, string $question): ChatReply;
+    /**
+     * @param list<ChatMessage> $history Previous turns in chronological order
+     */
+    public function reply(string $systemPrompt, string $question, array $history = []): ChatReply;
 }

@@ -52,18 +52,21 @@ CLAUDE_MODEL=claude-sonnet-5-5
 
 Beschikbare modellen en prijzen: https://docs.anthropic.com/en/docs/about-claude/models
 
-## Opdracht laag 1: laat de app praten
+## Chat en geschiedenis
 
-Op `main` werkt alles behalve de call naar Claude. Stuur een vraag en je krijgt een
-`LogicException` die zegt wat er ontbreekt. Je doel: de app antwoordt.
+De chat gebruikt de Anthropic Messages API. Binnen een gesprek stuurt de app de volledige
+geschiedenis van vragen en antwoorden mee, zodat Claude vervolgvragen kan herkennen.
+Een browsersessie kan meerdere gesprekken bewaren en daartussen wisselen; gesprekken
+worden in SQLite opgeslagen en zijn alleen bereikbaar vanuit de browsersessie die ze
+heeft aangemaakt. Voer na het ophalen van updates de Doctrine-migraties uit om de
+eigenaarskoppeling van gesprekken toe te voegen.
 
-Open `src/Ai/ClaudeChatModel.php` en implementeer `reply()`. De stappen staan als
-commentaar in de methode. Testen doe je met een echte key: `ANTHROPIC_API_KEY` in `.env` invullen,
-de app starten en een vraag stellen. De tokens onder het antwoord zijn je eerste
-kennismaking met wat een call kost.
+### Game-tool
 
-Klaar? Verwijder dan ook het `ignoreErrors`-blok onderaan `phpstan.dist.neon`, dat
-bestond alleen voor de lege stub.
+Claude kan `search_games` aanroepen om de gamecatalogus te doorzoeken op titel of
+beschrijving, genre, aantal spelers, maximumprijs en co-op. De server voert alleen deze
+vast gedefinieerde zoekfunctie uit, stuurt de resultaten terug naar Claude en toont de
+tool-aanroep en resultaten bij het antwoord. De toolloop is begrensd tot vijf rondes.
 
 ## Kwaliteitschecks
 
@@ -76,9 +79,9 @@ composer test      # phpunit
 ## Waar zit wat
 
 - `src/Ai/` – het gesprek met het model: `ChatModel` (interface), `ClaudeChatModel` (de SDK-call)
-- `src/Chat/ChatService.php` – de system prompt en de gesprekslogica (in laag 1 nog zonder geheugen)
-- `src/Entity/` + `migrations/` – `Conversation`, `Message` en `Game`: de database voor álle lagen staat al klaar,
-  ORM-mapping typen is niet de les. Vanaf laag 2 gebruiken we ze; `src/Ai/ChatMessage.php` en `ToolCall.php` ook
+- `src/Chat/` – de system prompt en het opslaan en meesturen van de gespreksgeschiedenis
+- `src/Entity/` + `migrations/` – `Conversation`, `Message` en `Game`: ORM-mapping typen is niet de les;
+  `src/Ai/ChatMessage.php` en `ToolCall.php` bevatten de modellen voor beurten en toolcalls
 - `src/Controller/Chat/` – één controller per route (`Index`, `Send`)
 - `templates/chat/` – de UI, met per antwoord het tokenverbruik
 - `tests/` – `FakeChatModel` vervangt Claude, zodat tests geen key of netwerk nodig hebben
